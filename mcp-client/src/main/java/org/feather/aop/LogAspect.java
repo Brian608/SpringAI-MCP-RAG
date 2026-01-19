@@ -2,11 +2,11 @@ package org.feather.aop;
 
 import lombok.extern.slf4j.Slf4j;
 
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 /**
  * @projectName: SpringAI-MCP-RAG
@@ -31,13 +31,14 @@ public class LogAspect {
      **/
     @Around("execution(* org.feather.service.impl..*.*(..))")
     public Object  recordTimesLog(ProceedingJoinPoint joinPoint) throws Throwable {
-        long startTime = System.currentTimeMillis();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         Object proceed = joinPoint.proceed();
         String point = joinPoint.getTarget().getClass().getName()
                 + "."
                 +joinPoint.getSignature().getName();
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
+        stopWatch.stop();
+        long duration = stopWatch.getTotalTimeMillis();
         if (duration>3000){
             log.error("{} 耗时偏长 {}毫秒", point, duration);
         }else if (duration>2000){
